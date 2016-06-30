@@ -96,6 +96,10 @@ class OSGGA_EXPORT KeySwitchMatrixManipulator : public CameraManipulator
         /** get the position of the manipulator as a inverse matrix of the manipulator, typically used as a model view matrix.*/
         virtual osg::Matrixd getInverseMatrix() const { return _current->getInverseMatrix(); }
 
+        /** update the camera for the current frame, typically called by the viewer classes.
+        Default implementation simply set the camera view matrix. */
+        virtual void updateCamera(osg::Camera& camera) { _current->updateCamera(camera); }
+
         /** Get the FusionDistanceMode. Used by SceneView for setting up stereo convergence.*/
         virtual osgUtil::SceneView::FusionDistanceMode getFusionDistanceMode() const { return _current->getFusionDistanceMode(); }
 
