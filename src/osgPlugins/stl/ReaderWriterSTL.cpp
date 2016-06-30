@@ -278,7 +278,7 @@ private:
             return buf;
         }
 
-        virtual void apply(osg::Geode& node)
+        virtual void apply(osg::Drawable& drawable)
         {
             osg::Matrix mat = osg::computeLocalToWorld(getNodePath());
 
@@ -288,24 +288,21 @@ private:
                 m_f = new osgDB::ofstream(sepFile.c_str());
             }
 
-            if (node.getName().empty())
+            if (drawable.getName().empty())
                 *m_f << "solid " << counter << std::endl;
             else
-                *m_f << "solid " << node.getName() << std::endl;
+                *m_f << "solid " << drawable.getName() << std::endl;
+            
+            osg::TriangleFunctor<PushPoints> tf;
+            tf.m_stream = m_f;
+            tf.m_mat = mat;
+            tf.m_dontSaveNormals = m_localOptions.dontSaveNormals;
+            drawable.accept(tf);            
 
-            for (unsigned int i = 0; i < node.getNumDrawables(); ++i)
-            {
-                osg::TriangleFunctor<PushPoints> tf;
-                tf.m_stream = m_f;
-                tf.m_mat = mat;
-                tf.m_dontSaveNormals = m_localOptions.dontSaveNormals;
-                node.getDrawable(i)->accept(tf);
-            }
-
-            if (node.getName().empty())
+            if (drawable.getName().empty())
                 *m_f << "endsolid " << counter << std::endl;
             else
-                *m_f << "endsolid " << node.getName() << std::endl;
+                *m_f << "endsolid " << drawable.getName() << std::endl;
 
             if (m_localOptions.separateFiles)
             {
@@ -314,7 +311,7 @@ private:
             }
 
             ++counter;
-            traverse(node);
+            traverse(drawable);
         }
 
         ~CreateStlVisitor()
